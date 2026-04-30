@@ -1,0 +1,28 @@
+name: Smoke
+
+on:
+  pull_request:
+
+jobs:
+  self-score:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Bundle
+        run: npm run build
+
+      - name: Run bundled skill against this repo
+        run: |
+          node skills/agent-friendly/dist/index.js .
+          echo "---"
+          node skills/agent-friendly/dist/index.js . --summary
