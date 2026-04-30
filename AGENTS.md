@@ -82,7 +82,7 @@ Semver tags with a major-version floating tag:
 
 Every release tag must be reflected in [`CHANGELOG.md`](./CHANGELOG.md). Move the relevant bullets out of `## [Unreleased]` into a new dated version section as part of the release commit.
 
-**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.0`; pin it with `#v0.1.0` (precise) or `#v0` (floating major).
+**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.1`; pin it with `#v0.1.1` (precise) or `#v0` (floating major).
 
 The CLI's git-ref support is implemented in [`vercel-labs/skills/src/source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`src/git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) (clones with `--branch <ref>`). Verified — but undocumented in their README, so worth re-checking on a CLI upgrade.
 
@@ -99,7 +99,7 @@ Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/ma
 **Local prunes from upstream** (intentional, do not re-add on sync):
 
 - `src/constants/scoring.ts` — only `SCORE_THRESHOLD_MID`, `SCORE_THRESHOLD_GOOD`, and `DEFAULT_SUGGESTION_LIMIT` are kept. Upstream's `LEADERBOARD_PAGE_SIZE`, `LEADERBOARD_PAGE_SIZE_MOBILE`, and `STRENGTHS_GAPS_VISIBLE_LIMIT` are dashboard-UI-only and not used by the skill.
-- `src/scoring/weights.ts` — `MODEL_BY_ID` (a `Record<ModelId, ModelProfile>`) is dropped; the skill iterates `MODELS` and never indexes by id.
+- `src/scoring/weights.ts` — `MODEL_BY_ID` (a `Record<ModelId, ModelProfile>`) is dropped; the skill iterates `MODELS` and never indexes by id, and ncc does not tree-shake the eager `Object.fromEntries` call.
 
 When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.
 
