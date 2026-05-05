@@ -2,7 +2,7 @@
 
 Portable agent skill that scores the current repo's agent-friendliness on disk and recommends a model class to use for it. Profiles eight agents — **Claude Code, Cursor, Devin, GPT-5 Codex, Gemini CLI, Aider, OpenHands, and Pi** — the same set the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) dashboard scores against. Installs into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent; agents without a profile (Cline, Copilot, Continue, Roo Code, …) still install and run fine — the recommendation is score-driven and provider-neutral, so the overall score and the score → model-class mapping apply regardless of which agent invoked the skill.
 
-> **Version**: `v0.1.1` — plans live in [`tasks/`](./tasks/). Pin `#v0` to track the latest 0.x release; pin a precise tag (`#v0.1.1`) to opt out of automatic minor/patch updates — see [Pinning a version](#pinning-a-version) below. Tracking task in the parent project: [`tasks/0.5.0/03-agent-skill.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/03-agent-skill.md).
+> **Version**: `v0.1.2` — plans live in [`tasks/`](./tasks/). Pin `#v0` to track the latest 0.x release; pin a precise tag (`#v0.1.2`) to opt out of automatic minor/patch updates — see [Pinning a version](#pinning-a-version) below. Tracking task in the parent project: [`tasks/0.5.0/03-agent-skill.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/03-agent-skill.md).
 
 ## What it does
 
@@ -33,7 +33,7 @@ The `vercel-labs/skills` CLI uses `#<ref>` (a URL fragment) to pick a git ref �
 ```bash
 npx skills add hsnice16/agent-friendly-skill          # tracks main — auto-updates via `npx skills update`
 npx skills add hsnice16/agent-friendly-skill#v0       # floating major tag — auto-updates within 0.x.y
-npx skills add hsnice16/agent-friendly-skill#v0.1.1   # precise tag — never updates
+npx skills add hsnice16/agent-friendly-skill#v0.1.2   # precise tag — never updates
 ```
 
 Branches and tags are both accepted. Commit SHAs are not (the CLI clones with `--branch <ref>` under the hood, which doesn't accept raw SHAs).

@@ -82,7 +82,7 @@ Semver tags with a major-version floating tag:
 
 Every release tag must be reflected in [`CHANGELOG.md`](./CHANGELOG.md). Move the relevant bullets out of `## [Unreleased]` into a new dated version section as part of the release commit.
 
-**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.1`; pin it with `#v0.1.1` (precise) or `#v0` (floating major).
+**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.2`; pin it with `#v0.1.2` (precise) or `#v0` (floating major).
 
 The CLI's git-ref support is implemented in [`vercel-labs/skills/src/source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`src/git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) (clones with `--branch <ref>`). Verified — but undocumented in their README, so worth re-checking on a CLI upgrade.
 

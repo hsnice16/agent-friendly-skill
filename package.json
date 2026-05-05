@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-skill",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Portable agent skill that scores the current repo's agent-friendliness on disk and recommends a model class.",
   "license": "MIT",

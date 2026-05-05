@@ -15,7 +15,7 @@ _What you thought would happen._
 
 ## Reproduction
 
-- **Skill version**: _`hsnice16/agent-friendly-skill#v0` or `#v0.1.1` (the `npx skills add` ref you used)_
+- **Skill version**: _`hsnice16/agent-friendly-skill#v0` or `#v0.1.2` (the `npx skills add` ref you used)_
 - **Agent**: _Claude Code / Codex / Cursor / Cline / Copilot / Aider / OpenHands / other (specify version)_
 - **OS**: _macOS / Linux / Windows (specify version)_
 - **Node version**: _`node --version`_
