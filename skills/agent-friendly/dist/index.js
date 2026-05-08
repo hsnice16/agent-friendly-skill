@@ -1979,7 +1979,7 @@ const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
 const helpers_1 = __nccwpck_require__(742);
 const DIRS = ["tests", "test", "__tests__", "spec", "specs", "Tests", "src/test"];
-const FILE_RE = /(^|\/)(.*\.test\.|.*\.spec\.|test_.*\.py$|.*_test\.go$|.*_test\.rs$|.*Test\.java$|.*Tests?\.kt$|.*_test\.exs$|.*_test\.dart$|.*Spec\.scala$|.*Test\.scala$)/;
+const FILE_RE = /(^|\/)(.*\.test\.|.*\.spec\.|test_.*\.py$|.*_test\.go$|.*_test\.rs$|.*Test\.java$|.*Tests?\.kt$|.*_test\.exs$|.*_test\.dart$|.*Spec\.scala$|.*Test\.scala$|.*Test\.php$|.*_test\.rb$|.*_spec\.rb$|.*Tests?\.cs$)/;
 exports.tests = {
     id: "tests",
     label: "Test suite",
