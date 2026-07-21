@@ -6,6 +6,16 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
+## [0.1.4] - 2026-07-21
+
+### Added
+
+- **Kimi CLI** weight profile — Moonshot AI's terminal coding agent is now the 9th scored model, so `modelScores` returns 9 entries and Kimi CLI can be picked as best-fit. `agents_md` weighted 1.0 (AGENTS.md is its only instruction surface; there is no CLAUDE.md fallback and `/init` generates one), `tests` 0.9, `deps_manifest` / `dev_env` / `readme` 0.7.
+
+### Changed
+
+- `aider` reweighted — `aider_conf` 0.8 → 1.0, `agents_md` 0.8 → 0.3. Aider does not natively read AGENTS.md or CONVENTIONS.md; those load only when wired through `.aider.conf.yml`'s `read:` key, so the config file is what actually determines whether Aider sees repo conventions.
+
 ## [0.1.3] - 2026-05-08
 
 ### Changed
@@ -43,6 +53,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut.
 
+[0.1.4]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.0...v0.1.1

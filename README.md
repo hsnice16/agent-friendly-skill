@@ -1,15 +1,15 @@
 # agent-friendly-skill
 
-Portable agent skill that scores the current repo's agent-friendliness on disk and recommends a model class to use for it. Profiles eight agents — **Claude Code, Cursor, Devin, GPT-5 Codex, Gemini CLI, Aider, OpenHands, and Pi** — the same set the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) dashboard scores against. Installs into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent; agents without a profile (Cline, Copilot, Continue, Roo Code, …) still install and run fine — the recommendation is score-driven and provider-neutral, so the overall score and the score → model-class mapping apply regardless of which agent invoked the skill.
+Portable agent skill that scores the current repo's agent-friendliness on disk and recommends a model class to use for it. Profiles nine agents — **Claude Code, Cursor, Devin, GPT-5 Codex, Kimi CLI, Gemini CLI, Aider, OpenHands, and Pi** — the same set the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) dashboard scores against. Installs into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent; agents without a profile (Cline, Copilot, Continue, Roo Code, …) still install and run fine — the recommendation is score-driven and provider-neutral, so the overall score and the score → model-class mapping apply regardless of which agent invoked the skill.
 
-> **Version**: `v0.1.3` — plans live in [`tasks/`](./tasks/). Pin `#v0` to track the latest 0.x release; pin a precise tag (`#v0.1.3`) to opt out of automatic minor/patch updates — see [Pinning a version](#pinning-a-version) below. Tracking task in the parent project: [`tasks/0.5.0/03-agent-skill.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/03-agent-skill.md).
+> **Version**: `v0.1.4` — plans live in [`tasks/`](./tasks/). Pin `#v0` to track the latest 0.x release; pin a precise tag (`#v0.1.4`) to opt out of automatic minor/patch updates — see [Pinning a version](#pinning-a-version) below. Tracking task in the parent project: [`tasks/0.5.0/03-agent-skill.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/03-agent-skill.md).
 
 ## What it does
 
 When the user invokes `/agent-friendly` (or however their agent triggers skills), the skill:
 
 1. Tells the user upfront that it scores the current working directory — so they're at the project root, or pass an explicit path. The agent surfaces this; the CLI also emits a `warnings[]` entry when the cwd has no project markers (`package.json` / `README.md` / `AGENTS.md` / `.git`) so a wrong path can't silently produce a low score.
-2. Runs the bundled scorer locally — 16 static signals × 8 agent profiles.
+2. Runs the bundled scorer locally — 16 static signals × 9 agent profiles.
 3. Picks the highest-scoring agent as the **best-fit** for this repo (score-driven, regardless of which agent invoked the skill).
 4. Maps the overall score to a band (high / mid / low) and recommends a model **class** (frontier / standard / small) for the user to switch to manually — the skill never switches the model programmatically.
 5. Prints the overall score, best-fit agent, runner-up if close, top improvements.
@@ -33,7 +33,7 @@ The `vercel-labs/skills` CLI uses `#<ref>` (a URL fragment) to pick a git ref �
 ```bash
 npx skills add hsnice16/agent-friendly-skill          # tracks main — auto-updates via `npx skills update`
 npx skills add hsnice16/agent-friendly-skill#v0       # floating major tag — auto-updates within 0.x.y
-npx skills add hsnice16/agent-friendly-skill#v0.1.3   # precise tag — never updates
+npx skills add hsnice16/agent-friendly-skill#v0.1.4   # precise tag — never updates
 ```
 
 Branches and tags are both accepted. Commit SHAs are not (the CLI clones with `--branch <ref>` under the hood, which doesn't accept raw SHAs).
