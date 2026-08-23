@@ -6,7 +6,7 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
-## [Unreleased]
+## [0.1.5] - 2026-08-23
 
 ### Fixed
 
@@ -60,6 +60,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut.
 
+[0.1.5]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.1...v0.1.2
