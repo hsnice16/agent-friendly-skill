@@ -6,6 +6,13 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
+## [Unreleased]
+
+### Fixed
+
+- Repo file lookups are now case-insensitive. Candidate paths previously had to match exactly, so a repo spelling its files `readme.md`, `Readme.md`, `license`, or `contributing.md` scored as though they were missing — and the skill reported a different score on Linux than on macOS for the same commit. Repos missing all three of README / LICENSE / CONTRIBUTING for this reason score up to 18 points higher now.
+- A single `Makefile` no longer counts as two dev-env artifacts, which could push `dev_env` from 0.7 to a full 1.0 on case-insensitive filesystems.
+
 ## [0.1.4] - 2026-07-21
 
 ### Added

@@ -1049,18 +1049,24 @@ exports.ci = {
     description: "Defined pipeline the agent can reason about / emulate locally.",
     improveSuggestion: "Add a CI workflow (e.g. .github/workflows/ci.yml or .gitlab-ci.yml) that runs tests + linter on every PR.",
     check: (repo) => {
-        const ghWf = (0, node_path_1.join)(repo, ".github", "workflows");
-        if ((0, node_fs_1.existsSync)(ghWf) && (0, node_fs_1.statSync)(ghWf).isDirectory()) {
-            const files = (0, node_fs_1.readdirSync)(ghWf).filter((f) => /\.ya?ml$/.test(f));
-            if (files.length > 0) {
-                return {
-                    pass: 1,
-                    id: "ci",
-                    label: "CI configuration",
-                    matchedPath: ".github/workflows",
-                    detail: `${files.length} GitHub Actions workflow(s)`,
-                };
+        const ghWf = (0, helpers_1.resolveRelative)(repo, ".github/workflows");
+        if (ghWf) {
+            const abs = (0, node_path_1.join)(repo, ghWf);
+            try {
+                if ((0, node_fs_1.statSync)(abs).isDirectory()) {
+                    const files = (0, node_fs_1.readdirSync)(abs).filter((f) => /\.ya?ml$/i.test(f));
+                    if (files.length > 0) {
+                        return {
+                            pass: 1,
+                            id: "ci",
+                            matchedPath: ghWf,
+                            label: "CI configuration",
+                            detail: `${files.length} GitHub Actions workflow(s)`,
+                        };
+                    }
+                }
             }
+            catch { }
         }
         const m = (0, helpers_1.firstExisting)(repo, OTHER_CI);
         if (m) {
@@ -1140,6 +1146,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.cursorRules = void 0;
 const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
+const helpers_1 = __nccwpck_require__(742);
 const LABEL = "Cursor rules (.cursor/rules)";
 exports.cursorRules = {
     label: LABEL,
@@ -1147,17 +1154,18 @@ exports.cursorRules = {
     description: "Cursor's canonical instruction surface — `.cursor/rules/*.mdc` (modern) or `.cursorrules` (legacy).",
     improveSuggestion: "Add `.cursor/rules/*.mdc` files describing how Cursor should work in this repo (architecture, conventions, naming). The legacy `.cursorrules` file is still read but is deprecated.",
     check: (repo) => {
-        const dir = (0, node_path_1.join)(repo, ".cursor", "rules");
-        if ((0, node_fs_1.existsSync)(dir)) {
+        const dir = (0, helpers_1.resolveRelative)(repo, ".cursor/rules");
+        if (dir) {
+            const abs = (0, node_path_1.join)(repo, dir);
             try {
-                if ((0, node_fs_1.statSync)(dir).isDirectory()) {
-                    const mdc = (0, node_fs_1.readdirSync)(dir).filter((f) => f.endsWith(".mdc"));
+                if ((0, node_fs_1.statSync)(abs).isDirectory()) {
+                    const mdc = (0, node_fs_1.readdirSync)(abs).filter((f) => f.toLowerCase().endsWith(".mdc"));
                     if (mdc.length > 0) {
                         return {
                             pass: 1,
                             label: LABEL,
                             id: "cursor_rules",
-                            matchedPath: `.cursor/rules/${mdc[0]}`,
+                            matchedPath: `${dir}/${mdc[0]}`,
                             detail: `${mdc.length} .mdc file${mdc.length === 1 ? "" : "s"} in .cursor/rules/`,
                         };
                     }
@@ -1165,13 +1173,13 @@ exports.cursorRules = {
             }
             catch { }
         }
-        const legacy = (0, node_path_1.join)(repo, ".cursorrules");
-        if ((0, node_fs_1.existsSync)(legacy)) {
+        const legacy = (0, helpers_1.resolveRelative)(repo, ".cursorrules");
+        if (legacy) {
             return {
                 pass: 0.5,
                 label: LABEL,
                 id: "cursor_rules",
-                matchedPath: ".cursorrules",
+                matchedPath: legacy,
                 detail: "Legacy .cursorrules — Cursor still reads it, but `.cursor/rules/*.mdc` is preferred",
             };
         }
@@ -1228,7 +1236,7 @@ const CANDIDATES = [
     "conanfile.py",
     "vcpkg.json",
 ];
-const GLOB_MANIFESTS = [/\.(csproj|fsproj|vbproj|sln)$/, /\.cabal$/, /\.nimble$/];
+const GLOB_MANIFESTS = [/\.(csproj|fsproj|vbproj|sln)$/i, /\.cabal$/i, /\.nimble$/i];
 function findGlobManifest(repo) {
     try {
         const entries = (0, node_fs_1.readdirSync)(repo);
@@ -1287,12 +1295,10 @@ exports.depsManifest = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.devEnv = void 0;
-const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
 const helpers_1 = __nccwpck_require__(742);
 const ARTIFACTS = [
     "Makefile",
-    "makefile",
     ".devcontainer/devcontainer.json",
     ".devcontainer.json",
     "flake.nix",
@@ -1315,7 +1321,7 @@ exports.devEnv = {
     description: "One-command setup the agent can run (Makefile / devcontainer / Nix / Docker).",
     improveSuggestion: "Add a Makefile or devcontainer or Dockerfile so the agent can set up the project in one command.",
     check: (repo) => {
-        const matches = ARTIFACTS.filter((c) => (0, node_fs_1.existsSync)((0, node_path_1.join)(repo, c)));
+        const matches = (0, helpers_1.resolveAllRelative)(repo, ARTIFACTS);
         if (matches.length >= 2) {
             return {
                 pass: 1,
@@ -1334,15 +1340,15 @@ exports.devEnv = {
                 label: "Reproducible dev env",
             };
         }
-        const pkg = (0, node_path_1.join)(repo, "package.json");
-        if ((0, node_fs_1.existsSync)(pkg)) {
+        const pkg = (0, helpers_1.resolveRelative)(repo, "package.json");
+        if (pkg) {
             try {
-                const j = JSON.parse((0, helpers_1.readSafe)(pkg));
+                const j = JSON.parse((0, helpers_1.readSafe)((0, node_path_1.join)(repo, pkg)));
                 if (j.scripts && Object.keys(j.scripts).length >= 3) {
                     return {
                         pass: 0.6,
                         id: "dev_env",
-                        matchedPath: "package.json",
+                        matchedPath: pkg,
                         label: "Reproducible dev env",
                         detail: `package.json has ${Object.keys(j.scripts).length} scripts`,
                     };
@@ -1369,32 +1375,16 @@ exports.devEnv = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.geminiMd = void 0;
-const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
 const helpers_1 = __nccwpck_require__(742);
 const LABEL = "GEMINI.md";
-function findGeminiMd(repo) {
-    let entries = [];
-    try {
-        entries = (0, node_fs_1.readdirSync)(repo);
-    }
-    catch {
-        return null;
-    }
-    for (const e of entries) {
-        if (e.toLowerCase() === "gemini.md") {
-            return (0, node_path_1.join)(repo, e);
-        }
-    }
-    return null;
-}
 exports.geminiMd = {
     label: LABEL,
     id: "gemini_md",
     description: "Gemini CLI's canonical hierarchical instructions file — read at every prompt.",
     improveSuggestion: "Add a GEMINI.md at the repo root covering project goals, layout, setup commands, and conventions. Aim for 800+ chars of real guidance (not boilerplate).",
     check: (repo) => {
-        const matched = findGeminiMd(repo);
+        const matched = (0, helpers_1.resolveRelative)(repo, "GEMINI.md");
         if (!matched) {
             return {
                 pass: 0,
@@ -1403,7 +1393,7 @@ exports.geminiMd = {
                 detail: "No GEMINI.md at repo root",
             };
         }
-        const len = (0, helpers_1.readSafe)(matched).trim().length;
+        const len = (0, helpers_1.readSafe)((0, node_path_1.join)(repo, matched)).trim().length;
         if (len === 0) {
             return {
                 pass: 0.2,
@@ -1450,16 +1440,84 @@ exports.geminiMd = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveRelative = resolveRelative;
+exports.resolveAllRelative = resolveAllRelative;
 exports.firstExisting = firstExisting;
 exports.readSafe = readSafe;
 exports.walkFind = walkFind;
 const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
-function firstExisting(repo, candidates) {
+function indexDir(dir, cache) {
+    const cached = cache.get(dir);
+    if (cached !== undefined) {
+        return cached;
+    }
+    let index = null;
+    try {
+        const entries = (0, node_fs_1.readdirSync)(dir);
+        const lower = new Map();
+        // Sorted so that when both README.md and readme.md exist, the pick is
+        // stable across runs instead of following readdir order.
+        for (const e of [...entries].sort()) {
+            const key = e.toLowerCase();
+            if (!lower.has(key)) {
+                lower.set(key, e);
+            }
+        }
+        index = { lower, exact: new Set(entries) };
+    }
+    catch { }
+    cache.set(dir, index);
+    return index;
+}
+function resolveWith(repo, rel, cache) {
+    const parts = [];
+    let current = repo;
+    for (const segment of rel.split("/")) {
+        if (!segment) {
+            return null;
+        }
+        const index = indexDir(current, cache);
+        if (!index) {
+            return null;
+        }
+        // Exact spelling wins so it is never shadowed by a differently-cased sibling.
+        const actual = index.exact.has(segment) ? segment : index.lower.get(segment.toLowerCase());
+        if (!actual) {
+            return null;
+        }
+        parts.push(actual);
+        current = (0, node_path_1.join)(current, actual);
+    }
+    return parts.join("/");
+}
+// Returns the path as spelled on disk, not as spelled in the candidate list —
+// callers surface it as `matchedPath`, so it has to be the real name.
+function resolveRelative(repo, rel) {
+    return resolveWith(repo, rel, new Map());
+}
+// Deduped by resolved path: a candidate list carrying two spellings of one
+// file (Makefile / makefile) must not count as two hits.
+function resolveAllRelative(repo, candidates) {
+    const cache = new Map();
+    const hits = new Set();
     for (const c of candidates) {
-        const p = (0, node_path_1.join)(repo, c);
-        if ((0, node_fs_1.existsSync)(p)) {
-            return p;
+        const hit = resolveWith(repo, c, cache);
+        if (hit) {
+            hits.add(hit);
+        }
+    }
+    return [...hits];
+}
+// Absolute, unlike the resolve* helpers above: callers feed the result straight
+// to readSafe, and scorer.ts relativises it before it is stored or rendered.
+function firstExisting(repo, candidates) {
+    // One directory listing serves every candidate rooted in the same place.
+    const cache = new Map();
+    for (const c of candidates) {
+        const hit = resolveWith(repo, c, cache);
+        if (hit) {
+            return (0, node_path_1.join)(repo, hit);
         }
     }
     return null;
@@ -1622,7 +1680,6 @@ exports.license = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.linter = void 0;
-const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
 const helpers_1 = __nccwpck_require__(742);
 const CANDIDATES = [
@@ -1690,12 +1747,12 @@ exports.linter = {
                 label: "Linter / formatter config",
             };
         }
-        const pyproject = (0, node_path_1.join)(repo, "pyproject.toml");
-        if ((0, node_fs_1.existsSync)(pyproject) && PYPROJECT_RE.test((0, helpers_1.readSafe)(pyproject))) {
+        const pyproject = (0, helpers_1.resolveRelative)(repo, "pyproject.toml");
+        if (pyproject && PYPROJECT_RE.test((0, helpers_1.readSafe)((0, node_path_1.join)(repo, pyproject)))) {
             return {
                 pass: 1,
                 id: "linter",
-                matchedPath: "pyproject.toml",
+                matchedPath: pyproject,
                 label: "Linter / formatter config",
                 detail: "Configured in pyproject.toml",
             };
@@ -1719,7 +1776,6 @@ exports.linter = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.openhandsSetup = void 0;
-const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
 const helpers_1 = __nccwpck_require__(742);
 const LABEL = ".openhands/setup.sh";
@@ -1730,8 +1786,8 @@ exports.openhandsSetup = {
     description: "OpenHands runs `.openhands/setup.sh` at session start to bootstrap the repo's dev environment.",
     improveSuggestion: "Add a `.openhands/setup.sh` that installs dependencies and prepares the project so OpenHands can run tests and lints out of the box.",
     check: (repo) => {
-        const abs = (0, node_path_1.join)(repo, REL);
-        if (!(0, node_fs_1.existsSync)(abs)) {
+        const rel = (0, helpers_1.resolveRelative)(repo, REL);
+        if (!rel) {
             return {
                 pass: 0,
                 label: LABEL,
@@ -1739,12 +1795,12 @@ exports.openhandsSetup = {
                 detail: "No .openhands/setup.sh",
             };
         }
-        const len = (0, helpers_1.readSafe)(abs).trim().length;
+        const len = (0, helpers_1.readSafe)((0, node_path_1.join)(repo, rel)).trim().length;
         if (len === 0) {
             return {
                 pass: 0.2,
                 label: LABEL,
-                matchedPath: abs,
+                matchedPath: rel,
                 id: "openhands_setup",
                 detail: "Empty .openhands/setup.sh",
             };
@@ -1752,7 +1808,7 @@ exports.openhandsSetup = {
         return {
             pass: 1,
             label: LABEL,
-            matchedPath: abs,
+            matchedPath: rel,
             id: "openhands_setup",
             detail: `Setup script present (${len} chars)`,
         };
@@ -1978,7 +2034,7 @@ exports.tests = void 0;
 const node_fs_1 = __nccwpck_require__(24);
 const node_path_1 = __nccwpck_require__(760);
 const helpers_1 = __nccwpck_require__(742);
-const DIRS = ["tests", "test", "__tests__", "spec", "specs", "Tests", "src/test"];
+const DIRS = ["tests", "test", "__tests__", "spec", "specs", "src/test"];
 const FILE_RE = /(^|\/)(.*\.test\.|.*\.spec\.|test_.*\.py$|.*_test\.go$|.*_test\.rs$|.*Test\.java$|.*Tests?\.kt$|.*_test\.exs$|.*_test\.dart$|.*Spec\.scala$|.*Test\.scala$|.*Test\.php$|.*_test\.rb$|.*_spec\.rb$|.*Tests?\.cs$)/;
 exports.tests = {
     id: "tests",
@@ -1987,16 +2043,22 @@ exports.tests = {
     improveSuggestion: "Add a tests/ (or test/, __tests__/, spec/) directory with runnable tests. Document how to run them in AGENTS.md.",
     check: (repo) => {
         for (const d of DIRS) {
-            const p = (0, node_path_1.join)(repo, d);
-            if ((0, node_fs_1.existsSync)(p) && (0, node_fs_1.statSync)(p).isDirectory()) {
-                return {
-                    pass: 1,
-                    id: "tests",
-                    matchedPath: d,
-                    label: "Test suite",
-                    detail: `Found /${d}`,
-                };
+            const rel = (0, helpers_1.resolveRelative)(repo, d);
+            if (!rel) {
+                continue;
             }
+            try {
+                if ((0, node_fs_1.statSync)((0, node_path_1.join)(repo, rel)).isDirectory()) {
+                    return {
+                        pass: 1,
+                        id: "tests",
+                        matchedPath: rel,
+                        label: "Test suite",
+                        detail: `Found /${rel}`,
+                    };
+                }
+            }
+            catch { }
         }
         const hits = (0, helpers_1.walkFind)(repo, (rel) => FILE_RE.test(rel), 3, 1);
         if (hits.length > 0) {
@@ -2046,12 +2108,12 @@ const TYPED_LANG_FILES = [
     { file: "build.zig", lang: "Zig" },
 ];
 const GLOB_TYPED = [
-    { re: /\.(csproj|fsproj|vbproj|sln)$/, lang: "C#" },
-    { re: /\.cabal$/, lang: "Haskell" },
+    { re: /\.(csproj|fsproj|vbproj|sln)$/i, lang: "C#" },
+    { re: /\.cabal$/i, lang: "Haskell" },
 ];
 function detectTypedLang(repo) {
     for (const { file, lang } of TYPED_LANG_FILES) {
-        if ((0, node_fs_1.existsSync)((0, node_path_1.join)(repo, file))) {
+        if ((0, helpers_1.resolveRelative)(repo, file)) {
             return lang;
         }
     }
@@ -2082,13 +2144,13 @@ exports.typeConfig = {
                 detail: "Type config present",
             };
         }
-        const pyproject = (0, node_path_1.join)(repo, "pyproject.toml");
-        if ((0, node_fs_1.existsSync)(pyproject) && PYPROJECT_RE.test((0, helpers_1.readSafe)(pyproject))) {
+        const pyproject = (0, helpers_1.resolveRelative)(repo, "pyproject.toml");
+        if (pyproject && PYPROJECT_RE.test((0, helpers_1.readSafe)((0, node_path_1.join)(repo, pyproject)))) {
             return {
                 pass: 1,
                 id: "type_config",
                 label: "Type configuration",
-                matchedPath: "pyproject.toml",
+                matchedPath: pyproject,
                 detail: "Configured in pyproject.toml",
             };
         }
