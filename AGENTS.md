@@ -4,13 +4,13 @@ Instructions for AI coding agents working on `agent-friendly-skill`.
 
 ## What this project is
 
-A portable agent skill — installable via `npx skills add hsnice16/agent-friendly-skill` into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent — that scores the user's current repo locally and recommends a model class. Profiles **9 agents** (Claude Code, Cursor, Devin, GPT-5 Codex, Kimi CLI, Gemini CLI, Aider, OpenHands, Pi) — the same set the upstream [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) dashboard scores against. Agents outside the 9 (Cline, Copilot, Continue, Roo Code, …) still install and run fine — the recommendation is score-driven and provider-neutral, so the overall score and the score → model-class mapping apply regardless of which agent invoked the skill. Their own profile isn't computed; the best-fit shown is whichever of the 9 profiled agents scored highest against the repo. Self-contained: the scorer is vendored into `skills/agent-friendly/dist/` so the skill keeps working independently of the upstream web app.
+A portable agent skill — installable via `npx skills add hsnice16/agent-friendly-skill` into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent — that scores the user's current repo locally, reports the best-fit agent, and recommends a model class. Profiles **9 agents** (Claude Code, Cursor, Devin, GPT-5 Codex, Gemini CLI, Kimi CLI, Aider, OpenHands, Pi) — the same set the upstream [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) website scores against. Agents outside the 9 (Cline, Copilot, Continue, Roo Code, …) still install and run fine — the recommendation is score-driven and provider-neutral, so the overall score and the score → model-class mapping apply regardless of which agent invoked the skill. Their own profile isn't computed; the best-fit shown is whichever of the 9 profiled agents scored highest against the repo. Self-contained: the scorer is vendored into `skills/agent-friendly/dist/` so the skill keeps working independently of the upstream web app.
 
 Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app and the [agent-friendly-action](https://github.com/hsnice16/agent-friendly-action) GitHub Action. The skill is read-only (local stdout); the web app is the source of truth for the leaderboard and the canonical scorer; the action posts PR-diff comments.
 
 ## Stack
 
-- **Node ≥ 20.9.0** runtime — matches `engines.node`. Bundle is built against Node 20.
+- **Node ≥ 20.9.0** runtime — matches `engines.node`.
 - **TypeScript** — strict mode.
 - **`@vercel/ncc`** — bundles `src/index.ts` + scorer into a single `skills/agent-friendly/dist/index.js`. That bundle is what `npx skills add` ships to consumers.
 - **Biome** — formatter + linter. Config at `biome.json` (lineWidth 120, parent-aligned). Vendored `src/scoring/` and `src/constants/` are excluded — upstream owns their style.
@@ -19,8 +19,7 @@ Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendl
 ## Layout
 
 ```text
-SKILL.md ↔ skills/agent-friendly/SKILL.md   # Skill content. The vercel-labs/skills CLI installs this directory.
-skills/agent-friendly/
+skills/agent-friendly/  # the directory the vercel-labs/skills CLI installs
   SKILL.md              # frontmatter + body (instructions to the agent)
   dist/
     index.js            # ncc-bundled scorer (committed — this is what gets installed)
@@ -35,7 +34,7 @@ biome.json              # formatter + linter config
 lefthook.yml            # pre-commit jobs (biome, typecheck, test, file-length)
 package.json            # private; build / typecheck / test scripts
 tasks/
-  0.1.0/                # version plans (per-task files + README)
+  <version>/            # one folder per release (README, plus per-task files for multi-task releases)
 CHANGELOG.md            # consumer-facing release log
 LICENSE                 # MIT
 ```
@@ -78,13 +77,13 @@ Semver tags with a major-version floating tag:
 
 - Each release gets a precise tag: `v0.1.0`, `v0.2.0`, …, `v1.0.0`, `v1.1.0`, …
 - The floating tag tracks the latest release within a single major version.
-- Consumers pin a tag using the `vercel-labs/skills` CLI's `#<ref>` fragment syntax (**not** `@<ref>`, which the CLI reserves for skill-name filters). `npx skills add hsnice16/agent-friendly-skill#v0` floats on the latest 0.x.y; `#v0.1.0` pins precisely. Tags + branches both work; commit SHAs don't (the CLI clones with `--branch <ref>`).
+- Consumers pin a tag using the `vercel-labs/skills` CLI's `#<ref>` fragment syntax (**not** `@<ref>`, which the CLI reserves for skill-name filters). `npx skills add hsnice16/agent-friendly-skill#v0` floats on the latest 0.x.y; `#v0.1.0` pins precisely. Tags, branches, and full 40-character commit SHAs work; abbreviated SHAs don't.
 
 Every release tag must be reflected in [`CHANGELOG.md`](./CHANGELOG.md). Move the relevant bullets out of `## [Unreleased]` into a new dated version section as part of the release commit.
 
-**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.5`; pin it with `#v0.1.5` (precise) or `#v0` (floating major).
+**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.6`; pin it with `#v0.1.6` (precise) or `#v0` (floating major).
 
-The CLI's git-ref support is implemented in [`vercel-labs/skills/src/source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`src/git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) (clones with `--branch <ref>`). Verified — but undocumented in their README, so worth re-checking on a CLI upgrade.
+The CLI's git-ref support is implemented in [`vercel-labs/skills/src/source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`src/git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) (`--branch <ref>` first; `cloneAtSha` fallback when the ref is a full SHA). Verified against `skills@1.7.2` — but undocumented in their README, so worth re-checking on a CLI upgrade.
 
 ## Self-containment rule
 
@@ -98,7 +97,7 @@ Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/ma
 
 **Local prunes from upstream** (intentional, do not re-add on sync):
 
-- `src/constants/scoring.ts` — only `SCORE_THRESHOLD_MID`, `SCORE_THRESHOLD_GOOD`, and `DEFAULT_SUGGESTION_LIMIT` are kept. Upstream's `LEADERBOARD_PAGE_SIZE`, `LEADERBOARD_PAGE_SIZE_MOBILE`, and `STRENGTHS_GAPS_VISIBLE_LIMIT` are dashboard-UI-only and not used by the skill.
+- `src/constants/scoring.ts` — only `SCORE_THRESHOLD_MID`, `SCORE_THRESHOLD_GOOD`, and `DEFAULT_SUGGESTION_LIMIT` are kept. Every other upstream constant sizes website UI (pagination, list limits, search length); nothing in `lib/scoring/` imports them.
 - `src/scoring/weights.ts` — `MODEL_BY_ID` (a `Record<ModelId, ModelProfile>`) is dropped; the skill iterates `MODELS` and never indexes by id, and ncc does not tree-shake the eager `Object.fromEntries` call.
 
 When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.

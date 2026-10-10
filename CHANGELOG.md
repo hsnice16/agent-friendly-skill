@@ -6,6 +6,17 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
+## [Unreleased]
+
+## [0.1.6] - 2026-10-10
+
+### Changed
+
+- The AGENTS.md / CLAUDE.md check no longer passes on Cursor rule files (`.cursor/rules`, `.cursorrules`); the separate Cursor-rules check already covers them. A repo with only Cursor rules scores lower on this check for every agent, and a `.cursor/rules` directory no longer reads as an empty instructions file. Vendored from the upstream scorer.
+- Agent rationales and source links for Cursor, Devin, Kimi CLI, OpenHands and Pi follow the agents' current docs. No weights changed.
+- `SKILL.md` description names the best-fit agent alongside the model class, and adds "which agent or model should I use here?" as a trigger phrase. The existing trigger phrases are kept.
+- The "doesn't look like a project root" warning no longer implies only four files are checked — it names `package.json`, `README.md`, `AGENTS.md`, `.git` "or other project marker". The check itself is unchanged.
+
 ## [0.1.5] - 2026-08-23
 
 ### Fixed
@@ -60,6 +71,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut.
 
+[0.1.6]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.2...v0.1.3

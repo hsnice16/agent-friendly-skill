@@ -51,7 +51,7 @@ function buildWarnings(target: string): string[] {
   }
 
   return [
-    `${target} doesn't look like a project root (no package.json / README.md / AGENTS.md / .git found at this path). The score will be low. Run from your project root, or pass the project root path explicitly.`,
+    `${target} doesn't look like a project root (no package.json, README.md, AGENTS.md, .git, or other project marker found at this path). The score will be low. Run from your project root, or pass the project root path explicitly.`,
   ];
 }
 

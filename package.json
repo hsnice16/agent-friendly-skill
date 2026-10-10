@@ -1,8 +1,8 @@
 {
   "name": "agent-friendly-skill",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
-  "description": "Portable agent skill that scores the current repo's agent-friendliness on disk and recommends a model class.",
+  "description": "Agent skill that scores the current repo for nine AI coding agents, reports the best-fit agent, and recommends a model class.",
   "license": "MIT",
   "author": "Himanshu Singh (https://github.com/hsnice16)",
   "engines": {
