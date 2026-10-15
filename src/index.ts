@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 
+import { parseArgs } from "./args";
 import { formatSummary } from "./format";
 import { scoreRepo, topImprovements } from "./scoring/scorer";
 import type { ModelId } from "./scoring/weights";
@@ -19,24 +20,6 @@ const PROJECT_ROOT_MARKERS = [
   "package.json",
   "pyproject.toml",
 ];
-
-function parseArgs(args: string[]): {
-  flags: Set<string>;
-  positional: string[];
-} {
-  const flags = new Set<string>();
-  const positional: string[] = [];
-
-  for (const a of args) {
-    if (a.startsWith("--")) {
-      flags.add(a);
-    } else {
-      positional.push(a);
-    }
-  }
-
-  return { flags, positional };
-}
 
 function bestModelId(scores: ReturnType<typeof scoreRepo>["modelScores"]): ModelId | undefined {
   const sorted = scores.slice().sort((a, b) => b.score - a.score);
@@ -55,29 +38,38 @@ function buildWarnings(target: string): string[] {
   ];
 }
 
+const KNOWN_FLAGS = new Set(["--summary", "--json", "--help", "-h"]);
+
+const USAGE = [
+  "Usage: agent-friendly-skill [path] [--summary] [--json]",
+  "",
+  "Scores the repo at <path> (default: cwd) and prints the result.",
+  "",
+  "  --summary   one-line human summary (for SessionStart hooks)",
+  "  --json      JSON output (the default)",
+  "  -h, --help  print this help",
+  "",
+].join("\n");
+
 function main(): void {
   const { flags, positional } = parseArgs(argv.slice(2));
 
   if (flags.has("--help") || flags.has("-h")) {
-    stdout.write(
-      [
-        "Usage: agent-friendly-skill [path] [--summary] [--json]",
-        "",
-        "Scores the repo at <path> (default: cwd) and prints the result.",
-        "",
-        "  --summary   one-line human summary (for SessionStart hooks)",
-        "  --json      explicit JSON output (default when no flags given)",
-        "  -h, --help  print this help",
-        "",
-      ].join("\n"),
-    );
+    stdout.write(USAGE);
     exit(0);
+  }
+
+  // A mistyped `--summary` would otherwise print JSON into a hook that expects one line.
+  const unknown = [...flags].filter((f) => !KNOWN_FLAGS.has(f));
+  if (unknown.length > 0) {
+    stderr.write(`agent-friendly: unknown option ${unknown.join(", ")}\n\n${USAGE}`);
+    exit(2);
   }
 
   const target = resolve(positional[0] ?? process.cwd());
 
-  if (!existsSync(target)) {
-    stderr.write(`agent-friendly: path does not exist: ${target}\n`);
+  if (!existsSync(target) || !statSync(target).isDirectory()) {
+    stderr.write(`agent-friendly: not a directory: ${target}\n`);
     exit(2);
   }
 

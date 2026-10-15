@@ -4,9 +4,9 @@ Instructions for AI coding agents working on `agent-friendly-skill`.
 
 ## What this project is
 
-A portable agent skill — installable via `npx skills add hsnice16/agent-friendly-skill` into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent — that scores the user's current repo locally, reports the best-fit agent, and recommends a model class. Profiles **9 agents** (Claude Code, Cursor, Devin, GPT-5 Codex, Gemini CLI, Kimi CLI, Aider, OpenHands, Pi) — the same set the upstream [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) website scores against. Agents outside the 9 (Cline, Copilot, Continue, Roo Code, …) still install and run fine — the recommendation is score-driven and provider-neutral, so the overall score and the score → model-class mapping apply regardless of which agent invoked the skill. Their own profile isn't computed; the best-fit shown is whichever of the 9 profiled agents scored highest against the repo. Self-contained: the scorer is vendored into `skills/agent-friendly/dist/` so the skill keeps working independently of the upstream web app.
+An agent skill (`npx skills add hsnice16/agent-friendly-skill#v0`) that scores the user's current repo locally for the nine agents [Agent Friendly Code](https://agentfriendlycode.com) profiles, reports the best fit and recommends a model class. Any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent can run it; agents without a profile get the same score-driven answer.
 
-Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app and the [agent-friendly-action](https://github.com/hsnice16/agent-friendly-action) GitHub Action. The skill is read-only (local stdout); the web app is the source of truth for the leaderboard and the canonical scorer; the action posts PR-diff comments.
+The scorer is vendored from [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code), the source of truth, and bundled so the skill never needs the website. [agent-friendly-action](https://github.com/hsnice16/agent-friendly-action) vendors the same scorer for PR comments.
 
 ## Stack
 
@@ -24,11 +24,14 @@ skills/agent-friendly/  # the directory the vercel-labs/skills CLI installs
   dist/
     index.js            # ncc-bundled scorer (committed — this is what gets installed)
 src/
-  index.ts              # entry point — argv parsing + orchestration
+  index.ts              # entry point — orchestration
+  args.ts               # argv parsing
   format.ts             # one-line summary formatter for --summary
   scoring/              # vendored from upstream lib/scoring/ (do not reformat — sync rule below)
   constants/            # vendored from upstream lib/constants/scoring.ts
 tests/
+  args.test.ts
+  cli.test.ts
   format.test.ts
 biome.json              # formatter + linter config
 lefthook.yml            # pre-commit jobs (biome, typecheck, test, file-length)
@@ -68,22 +71,11 @@ The CLI's repo-layout discovery supports both — `skills/<name>/SKILL.md` is on
 
 ## Versioning
 
-> **Two kinds of tags, don't confuse them:**
->
-> - **Precise** (e.g. `v0.1.0`) — immutable. Points at exactly one commit, forever.
-> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release.
+Semver tags plus a floating major tag. A precise tag (`v0.1.6`) never moves; the floating tag (`v0`, later `v1`) is repointed to the latest release of that major. Consumers pick a ref with the CLI's `#<ref>` fragment — `@` is its skill-name filter. The skill's version is independent of upstream's: a `tasks/0.5.0/...` link on upstream is upstream's milestone.
 
-Semver tags with a major-version floating tag:
+Every release tag gets a dated `CHANGELOG.md` section (bullets moved out of `## [Unreleased]`); [CONTRIBUTING.md](./CONTRIBUTING.md#release-flow) has the steps.
 
-- Each release gets a precise tag: `v0.1.0`, `v0.2.0`, …, `v1.0.0`, `v1.1.0`, …
-- The floating tag tracks the latest release within a single major version.
-- Consumers pin a tag using the `vercel-labs/skills` CLI's `#<ref>` fragment syntax (**not** `@<ref>`, which the CLI reserves for skill-name filters). `npx skills add hsnice16/agent-friendly-skill#v0` floats on the latest 0.x.y; `#v0.1.0` pins precisely. Tags, branches, and full 40-character commit SHAs work; abbreviated SHAs don't.
-
-Every release tag must be reflected in [`CHANGELOG.md`](./CHANGELOG.md). Move the relevant bullets out of `## [Unreleased]` into a new dated version section as part of the release commit.
-
-**This skill's version is independent from upstream `agent-friendly-code`.** When docs or task plans link a `tasks/0.5.0/...` path on upstream (e.g. the tracking task), the `0.5.0` is **upstream's milestone**, not this skill's version. This skill is at `0.1.6`; pin it with `#v0.1.6` (precise) or `#v0` (floating major).
-
-The CLI's git-ref support is implemented in [`vercel-labs/skills/src/source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`src/git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) (`--branch <ref>` first; `cloneAtSha` fallback when the ref is a full SHA). Verified against `skills@1.7.2` — but undocumented in their README, so worth re-checking on a CLI upgrade.
+`#<ref>` support lives in [`source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) and is undocumented in their README (checked against `skills@1.7.2`) — re-check on a CLI upgrade.
 
 ## Self-containment rule
 
@@ -106,6 +98,6 @@ Extracting the scorer to a standalone npm package (`agent-friendly-scorer`) is o
 
 ## Security
 
-The skill runs locally on the user's machine, reading file contents from the resolved repo root. It does not write files, does not contact any external service, and does not handle credentials. The bundled scorer follows the same conventions as upstream — no `npm install`, no script execution, only file reads.
+The skill reads files under the resolved repo root and nothing else: no writes, no network, no credentials, no code from the scored repo is run. The scorer treats the tree as untrusted — symlinks that leave the root are not followed, only regular files are read, and each read stops at 1 MiB.
 
-If you spot a vulnerability — e.g. a way to make the bundle execute code from the scored repo, exfiltrate file contents, or read paths outside the resolved root — email <hsnice16@gmail.com> rather than opening a public issue. Coordinated disclosure preferred.
+Report a vulnerability — e.g. a way to execute code from the scored repo or read outside its root — to <hsnice16@gmail.com>, not a public issue.

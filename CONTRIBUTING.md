@@ -67,7 +67,7 @@ The skill's `CHANGELOG.md` is the **consumer-facing log** — it tracks anything
 
 It does **not** include: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
-When the change qualifies, append a one-line bullet under `## [Unreleased]` in [`CHANGELOG.md`](./CHANGELOG.md). On release, bullets move from `## [Unreleased]` into a new dated `## [vX.Y.Z]` section as part of the release commit.
+When the change qualifies, append a one-line bullet under `## [Unreleased]` in [`CHANGELOG.md`](./CHANGELOG.md). On release, bullets move from `## [Unreleased]` into a new dated `## [X.Y.Z]` section as part of the release commit.
 
 ### Size
 
@@ -86,7 +86,7 @@ A PR is ready to merge when:
 
 ## Release flow
 
-1. Move bullets from `## [Unreleased]` into a new `## [vX.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md`. Commit.
+1. Set `version` in `package.json` (and `package-lock.json`) to `X.Y.Z`, and move bullets from `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md`. Commit.
 2. Tag the precise release: `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`.
 3. Repoint the floating major tag (`v0` during pre-1.0; `v1` after 1.0.0): `git tag -fa v0 -m "v0 → vX.Y.Z" && git push origin v0 --force`. Force-push is allowed for the **floating** tag only — never for the precise tag.
 4. Open a GitHub Release for the tag, mirror the changelog section into the description.
@@ -97,7 +97,7 @@ A PR is ready to merge when:
 
 ## Reporting bugs + requesting features
 
-- **Bugs**: open an issue using the bug-report template. Include the skill version (`#v0.1.6` or `#v0` — the `npx skills add` ref you installed with), your agent + version, and the JSON output the skill produced if relevant.
+- **Bugs**: open an issue using the bug-report template. Include the skill version (`#v0.1.7` or `#v0` — the `npx skills add` ref you installed with), your agent + version, and the JSON output the skill produced if relevant.
 - **Features**: open an issue using the feature-request template before sending a PR for non-trivial changes — alignment first avoids wasted work.
 
 ## Security

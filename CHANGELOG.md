@@ -8,6 +8,25 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-10-16
+
+### Fixed
+
+- The file a check names as its match (the first test file, `.cursor/rules/*.mdc` or `*.csproj`-style manifest) is now picked by name instead of directory-listing order, so the same commit reports the same file on every machine. Scores are unchanged. Vendored from the upstream scorer.
+- The Cursor-rules check's detail for a legacy `.cursorrules` file no longer contains backticks, so it reads cleanly wherever the detail is quoted. Scores are unchanged. Vendored from the upstream scorer.
+- `-h` now prints the help. Only `--help` worked; `-h` was taken as the path to score.
+- An unknown option or a path that isn't a directory now exits with code 2 and a message. A mistyped `--summary` used to print the full JSON instead of one line.
+
+### Changed
+
+- Check details print counts as "14,688 characters" instead of "14688 chars", and say "1 GitHub Actions workflow" / "2 … workflows" instead of "workflow(s)". Check descriptions are reworded in plain language. Scores are unchanged. Vendored from the upstream scorer.
+- The first-run hook guidance matches the `/skill` page: Codex uses the same matcher-group shape as Claude Code, and other agents run `/agent-friendly` by hand. The old `.cursorrules` workaround is gone; Cursor now has its own session hook.
+- The model-class examples name model families without version numbers (Opus, GPT-5, Gemini Pro; Sonnet, GPT-5 mini, Gemini Flash; Haiku, GPT-5 nano, Gemini Flash-Lite). GPT-4o-mini and the Gemini 2.5 names were out of date.
+
+### Security
+
+- The scorer no longer follows a symlink out of the scored repo, reads only regular files, and reads at most 1 MiB of any file. A tree with `README.md` linked to `/dev/zero` could exhaust memory, and one linked to a file elsewhere on the machine leaked that file's length into the score. An escaping link still counts as one file for the size check; a README over 1 MiB is measured on its first 1 MiB. Scores of ordinary repos are unchanged. Vendored from the upstream scorer.
+
 ## [0.1.6] - 2026-10-10
 
 ### Changed
@@ -71,6 +90,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut.
 
+[0.1.7]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/hsnice16/agent-friendly-skill/compare/v0.1.3...v0.1.4
