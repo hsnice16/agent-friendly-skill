@@ -30,7 +30,7 @@ The CLI selects a git ref with `#<ref>`, not `@<ref>` — `@` filters by skill n
 ```bash
 npx skills add hsnice16/agent-friendly-skill          # main
 npx skills add hsnice16/agent-friendly-skill#v0       # latest 0.x.y release
-npx skills add hsnice16/agent-friendly-skill#v0.1.7   # one exact release
+npx skills add hsnice16/agent-friendly-skill#v0.1.8   # one exact release
 ```
 
 Branches, tags and full 40-character SHAs work; abbreviated SHAs don't.

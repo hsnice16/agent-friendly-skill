@@ -93,11 +93,11 @@ A PR is ready to merge when:
 
 ## Vendored scorer
 
-`src/scoring/` and `src/constants/` are vendored from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is **no automatic sync**. When upstream changes a signal, weight, or `scorer.ts` shape, copy the change here by hand and log it under `## [Unreleased]` in `CHANGELOG.md`. Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (the "Sibling repos" section) owns the propagation rule.
+See [AGENTS.md → Vendored scorer](./AGENTS.md#vendored-scorer-sync-rule) for the sync rule and the local prunes.
 
 ## Reporting bugs + requesting features
 
-- **Bugs**: open an issue using the bug-report template. Include the skill version (`#v0.1.7` or `#v0` — the `npx skills add` ref you installed with), your agent + version, and the JSON output the skill produced if relevant.
+- **Bugs**: open an issue using the bug-report template. Include the skill version (`#v0.1.8` or `#v0` — the `npx skills add` ref you installed with), your agent + version, and the JSON output the skill produced if relevant.
 - **Features**: open an issue using the feature-request template before sending a PR for non-trivial changes — alignment first avoids wasted work.
 
 ## Security

@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-skill",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "description": "Agent skill that scores the current repo for nine AI coding agents, reports the best-fit agent, and recommends a model class.",
   "license": "MIT",
