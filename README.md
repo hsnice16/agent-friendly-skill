@@ -1,5 +1,7 @@
 # agent-friendly-skill
 
+[![Listed on skills.sh](https://img.shields.io/badge/listed_on-skills.sh-000000?style=flat-square&logo=vercel&logoColor=white)](https://www.skills.sh/hsnice16/agent-friendly-skill/agent-friendly)
+
 Agent skill that scores the repo you are in for nine AI coding agents, shows which one it is best set up for, and recommends a model class. Runs locally; no network calls.
 
 ## What it does
