@@ -97,7 +97,7 @@ See [AGENTS.md → Vendored scorer](./AGENTS.md#vendored-scorer-sync-rule) for t
 
 ## Reporting bugs + requesting features
 
-- **Bugs**: open an issue using the bug-report template. Include the skill version (`#v0.1.8` or `#v0` — the `npx skills add` ref you installed with), your agent + version, and the JSON output the skill produced if relevant.
+- **Bugs**: open an issue using the bug-report template. Include the skill version (`#v0.1.9` or `#v0` — the `npx skills add` ref you installed with), your agent + version, and the JSON output the skill produced if relevant.
 - **Features**: open an issue using the feature-request template before sending a PR for non-trivial changes — alignment first avoids wasted work.
 
 ## Security
