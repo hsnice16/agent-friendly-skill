@@ -54,11 +54,11 @@ npm run format          # biome check --write (full repo)
 npm run lint            # biome check (read-only)
 ```
 
-`skills/agent-friendly/dist/` is **committed**. CI verifies it's in sync on every push so what `npx skills add` ships always matches the source.
+`skills/agent-friendly/dist/` is **committed**: `npx skills add` ships it. CI fails when it has drifted from `src/`.
 
 ## Conventions
 
-- **Exact-pinned deps** in `package.json` (no `^`, no `latest`). Mirrors the upstream rule — deterministic builds, reproducible bundles.
+- **Exact-pinned deps** in `package.json` (no `^`, no `latest`), so bundles are reproducible.
 - **File length**: `src/**/*.ts` stays ≤ 300 lines. Enforced by the lefthook `file-length` job.
 - **No comments** explaining _what_ the code does. Only _why_.
 - **Vendored code is exempt** from this repo's biome config (see `biome.json`'s ignore list). Do not run `npm run format` against `src/scoring/` or `src/constants/`.
@@ -66,8 +66,6 @@ npm run lint            # biome check (read-only)
 ## Why `skills/agent-friendly/SKILL.md` and not root SKILL.md?
 
 The `vercel-labs/skills` CLI installs the **directory containing SKILL.md**. If SKILL.md lived at repo root, every sibling file (package.json, src/, tests/, node_modules/, …) would be copied into the user's agent skill directory on `npx skills add`. By scoping the SKILL.md to a subdirectory, only the things consumers actually need (SKILL.md + the bundled scorer in `dist/`) ship.
-
-The CLI's repo-layout discovery supports both — `skills/<name>/SKILL.md` is one of several documented layouts. See <https://github.com/vercel-labs/skills>.
 
 ## Versioning
 
@@ -85,7 +83,7 @@ The skill must keep working with no network access to the [agent-friendly-code](
 
 `src/scoring/` and `src/constants/` are vendored copies of `lib/scoring/` and `lib/constants/scoring.ts` from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is no automatic sync — when upstream changes a signal, weight, or `scorer.ts` shape, those changes are copied here by hand and logged under `## [Unreleased]` in `CHANGELOG.md`.
 
-Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (under "Sibling repos") owns the propagation rule — agents working over there are instructed to mirror their scorer changes into this repo **and** into `agent-friendly-action`. If you find drift, the upstream is the source of truth — **except** for the deliberate prunes listed below.
+Upstream's [`AGENTS.md` → Sibling repos](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md#sibling-repos) owns the propagation rule. On drift, upstream wins, **except** for the deliberate prunes below.
 
 **Local prunes from upstream** (intentional, do not re-add on sync):
 
@@ -94,7 +92,7 @@ Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/ma
 
 When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.
 
-Extracting the scorer to a standalone npm package (`agent-friendly-scorer`) is on the upstream's `1.0.0/03` benchmark-harness task. When that lands, this repo will install the package instead of vendoring, and the sync rule plus these prunes both disappear.
+Upstream's `tasks/1.0.0/03-benchmark-harness.md` plans a standalone scorer package, which would replace vendoring.
 
 ## Security
 

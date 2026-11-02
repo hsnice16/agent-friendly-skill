@@ -8,7 +8,7 @@ Agent skill that scores the repo you are in for nine AI coding agents, shows whi
 
 When you invoke `/agent-friendly` (or ask your agent whether the repo is agent-ready), the skill:
 
-1. Scores the current directory with the bundled scorer — [16 static checks](https://agentfriendlycode.com/check) × 9 agent profiles, weighted as [/methodology](https://agentfriendlycode.com/methodology) describes. It warns when the directory doesn't look like a project root, since a subdirectory scores misleadingly low.
+1. Scores the current directory with the bundled scorer — [17 static checks](https://agentfriendlycode.com/check) × 9 agent profiles, weighted as [/methodology](https://agentfriendlycode.com/methodology) describes. It warns when the directory doesn't look like a project root, since a subdirectory scores misleadingly low.
 2. Picks the highest-scoring agent as the **best fit** for this repo, whichever agent invoked the skill.
 3. Maps the overall score to a band and recommends a model **class**. It never switches the model for you.
 4. Prints the overall score, best fit, a close runner-up and the top improvements.
