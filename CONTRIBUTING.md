@@ -27,7 +27,7 @@ Ready to merge when CI is green, a reviewer has approved, no comments are open, 
 
 ## Issues
 
-- **Bugs**: use the bug-report template. Include the `npx skills add` ref you installed (`#v0.1.9` or `#v0`), your agent and its version, and the skill's JSON output if relevant.
+- **Bugs**: use the bug-report template. Include the `npx skills add` ref you installed (`#v0.1.10` or `#v0`), your agent and its version, and the skill's JSON output if relevant.
 - **Features**: open an issue before sending a PR for non-trivial changes.
 
 ## Security
