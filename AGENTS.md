@@ -23,6 +23,7 @@ skills/agent-friendly/  # the directory the vercel-labs/skills CLI installs
   SKILL.md              # frontmatter + body (instructions to the agent)
   dist/
     index.js            # ncc-bundled scorer (committed — this is what gets installed)
+    package.json        # keeps the CommonJS bundle CommonJS in `type: module` host repos
 src/
   index.ts              # entry point — orchestration
   args.ts               # argv parsing
@@ -31,8 +32,11 @@ src/
   constants/            # vendored from upstream lib/constants/scoring.ts
 tests/
   args.test.ts
+  bundle.test.ts
   cli.test.ts
   format.test.ts
+scripts/
+  write-dist-package.mjs  # generates dist/package.json after ncc
 biome.json              # formatter + linter config
 lefthook.yml            # pre-commit jobs (biome, typecheck, test, file-length)
 package.json            # private; build / typecheck / test scripts
