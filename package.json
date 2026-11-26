@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-skill",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "private": true,
   "description": "Agent skill that scores the current repo for nine AI coding agents, reports the best-fit agent, and recommends a model class.",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "ignore": "7.0.5"
   },
   "scripts": {
-    "build": "ncc build src/index.ts -o skills/agent-friendly/dist --source-map --license licenses.txt && node scripts/write-dist-package.mjs",
+    "build": "ncc build src/index.ts -o skills/agent-friendly/dist --source-map --license licenses.txt",
     "format": "biome check --write",
     "lint": "biome check",
     "prepare-hooks": "lefthook install",

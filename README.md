@@ -21,7 +21,7 @@ The nine profiled agents are [Claude Code](https://agentfriendlycode.com/model/c
 npx skills add hsnice16/agent-friendly-skill#v0
 ```
 
-The [`vercel-labs/skills`](https://github.com/vercel-labs/skills) CLI detects your local agents and installs `SKILL.md` plus `dist/index.js` into each one's skill directory. Pass `--agent <name>` to pick one.
+The [`vercel-labs/skills`](https://github.com/vercel-labs/skills) CLI detects your local agents and installs `SKILL.md` and the bundled `dist/` into each one's skill directory. Pass `--agent <name>` to pick one.
 
 Then ask your agent _"is this repo agent-friendly?"_ or run `/agent-friendly`.
 
@@ -32,7 +32,7 @@ The CLI selects a git ref with `#<ref>`, not `@<ref>` — `@` filters by skill n
 ```bash
 npx skills add hsnice16/agent-friendly-skill          # main
 npx skills add hsnice16/agent-friendly-skill#v0       # latest 0.x.y release
-npx skills add hsnice16/agent-friendly-skill#v0.1.11   # one exact release
+npx skills add hsnice16/agent-friendly-skill#v0.1.12  # one exact release
 ```
 
 Branches, tags and full 40-character SHAs work; abbreviated SHAs don't.
