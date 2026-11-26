@@ -13,10 +13,13 @@ export function bandFor(overall: number): "high" | "mid" | "low" {
   return "low";
 }
 
+export function bestModel(scores: RepoScore["modelScores"]): RepoScore["modelScores"][number] | undefined {
+  return scores.slice().sort((a, b) => b.score - a.score)[0];
+}
+
 export function formatSummary(score: RepoScore): string {
   const band = bandFor(score.overall);
-  const sorted = score.modelScores.slice().sort((a, b) => b.score - a.score);
-  const best = sorted[0];
+  const best = bestModel(score.modelScores);
 
   const head = `agent-friendly: ${score.overall} (${band})`;
   const tail = best ? ` · best: ${best.modelLabel} ${best.score}` : "";

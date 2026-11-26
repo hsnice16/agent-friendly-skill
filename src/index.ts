@@ -4,9 +4,8 @@ import { join, resolve } from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 
 import { parseArgs } from "./args";
-import { formatSummary } from "./format";
+import { bestModel, formatSummary } from "./format";
 import { scoreRepo, topImprovements } from "./scoring/scorer";
-import type { ModelId } from "./scoring/weights";
 
 const PROJECT_ROOT_MARKERS = [
   ".git",
@@ -20,11 +19,6 @@ const PROJECT_ROOT_MARKERS = [
   "package.json",
   "pyproject.toml",
 ];
-
-function bestModelId(scores: ReturnType<typeof scoreRepo>["modelScores"]): ModelId | undefined {
-  const sorted = scores.slice().sort((a, b) => b.score - a.score);
-  return sorted[0]?.modelId;
-}
 
 function buildWarnings(target: string): string[] {
   const hasMarker = PROJECT_ROOT_MARKERS.some((m) => existsSync(join(target, m)));
@@ -41,7 +35,7 @@ function buildWarnings(target: string): string[] {
 const KNOWN_FLAGS = new Set(["--summary", "--json", "--help", "-h"]);
 
 const USAGE = [
-  "Usage: agent-friendly-skill [path] [--summary] [--json]",
+  "Usage: node <skill-dir>/dist/index.js [path] [--summary] [--json]",
   "",
   "Scores the repo at <path> (default: cwd) and prints the result.",
   "",
@@ -66,6 +60,11 @@ function main(): void {
     exit(2);
   }
 
+  if (positional.length > 1) {
+    stderr.write(`agent-friendly: expected one path, got ${positional.length}\n\n${USAGE}`);
+    exit(2);
+  }
+
   const target = resolve(positional[0] ?? process.cwd());
 
   if (!existsSync(target) || !statSync(target).isDirectory()) {
@@ -75,8 +74,8 @@ function main(): void {
 
   const score = scoreRepo(target);
   const warnings = buildWarnings(target);
-  const topModel = bestModelId(score.modelScores);
-  const improvements = topModel ? topImprovements(topModel, score.signals) : [];
+  const topModel = bestModel(score.modelScores);
+  const improvements = topModel ? topImprovements(topModel.modelId, score.signals) : [];
 
   if (flags.has("--summary")) {
     for (const w of warnings) {

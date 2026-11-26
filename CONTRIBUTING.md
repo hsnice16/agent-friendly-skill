@@ -2,7 +2,7 @@
 
 Read [AGENTS.md](./AGENTS.md) first: stack, commands, layout, the vendored-scorer sync rule and conventions. AI coding agents and humans are held to the same rules.
 
-Run `npm run prepare-hooks` once after cloning; the hooks are in `lefthook.yml`, and CI (`.github/workflows/ci.yml`) repeats them plus a `dist/` drift check. Run `npm run build` before pushing source changes: `npx skills add` installs the committed `skills/agent-friendly/dist/index.js`.
+Run `npm run prepare-hooks` once after cloning; the hooks are in `lefthook.yml`, and CI (`.github/workflows/ci.yml`) repeats them plus a `dist/` drift check. Run `npm run build` before pushing source changes: `npx skills add` installs the committed `skills/agent-friendly/dist/`.
 
 ## Branches and commits
 
@@ -20,19 +20,19 @@ Ready to merge when CI is green, a reviewer has approved, no comments are open, 
 
 ## Release flow
 
-1. Set `version` in `package.json` (and `package-lock.json`) to `X.Y.Z`, and move bullets from `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md`. Commit.
+1. Set `version` in `package.json` (and `package-lock.json`) to `X.Y.Z`. Move bullets from `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md` and update the compare links at its foot. Bump the exact-release example in `README.md`, and add `tasks/X.Y.Z/README.md`. Commit.
 2. Tag the precise release: `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`.
 3. Repoint the floating major tag (`v0` during pre-1.0; `v1` after 1.0.0): `git tag -fa v0 -m "v0 → vX.Y.Z" && git push origin v0 --force`. Force-push is allowed for the **floating** tag only — never for the precise tag.
 4. Open a GitHub Release for the tag, mirror the changelog section into the description.
 
 ## Issues
 
-- **Bugs**: use the bug-report template. Include the `npx skills add` ref you installed (`#v0.1.11` or `#v0`), your agent and its version, and the skill's JSON output if relevant.
+- **Bugs**: use the bug-report template. Include the `npx skills add` ref you installed (`#vX.Y.Z` or `#v0`), your agent and its version, and the skill's JSON output if relevant.
 - **Features**: open an issue before sending a PR for non-trivial changes.
 
 ## Security
 
-Threat model: [AGENTS.md → Security](./AGENTS.md#security). Report vulnerabilities to <hsnice16@gmail.com>, not in a public issue.
+See [`.github/SECURITY.md`](./.github/SECURITY.md).
 
 ## Conduct
 

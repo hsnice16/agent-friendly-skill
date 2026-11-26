@@ -12,18 +12,17 @@ The scorer is vendored from [agent-friendly-code](https://github.com/hsnice16/ag
 
 - **Node ≥ 20.9.0** runtime — matches `engines.node`.
 - **TypeScript** — strict mode.
-- **`@vercel/ncc`** — bundles `src/index.ts` + scorer into a single `skills/agent-friendly/dist/index.js`. That bundle is what `npx skills add` ships to consumers.
-- **Biome** — formatter + linter. Config at `biome.json` (lineWidth 120, parent-aligned). Vendored `src/scoring/` and `src/constants/` are excluded — upstream owns their style.
-- **Lefthook** — git pre-commit hooks run Biome / `tsc --noEmit` / tests / a 300-line file-length cap on `src/**/*.ts`.
+- **`@vercel/ncc`** — bundles `src/index.ts` + scorer into `skills/agent-friendly/dist/`.
+- **Biome** — formatter + linter (`biome.json`).
+- **Lefthook** — pre-commit hooks (`lefthook.yml`).
 
 ## Layout
 
 ```text
 skills/agent-friendly/  # the directory the vercel-labs/skills CLI installs
   SKILL.md              # frontmatter + body (instructions to the agent)
-  dist/
-    index.js            # ncc-bundled scorer (committed — this is what gets installed)
-    package.json        # keeps the CommonJS bundle CommonJS in `type: module` host repos
+  dist/                 # ncc output, committed; ships whole (index.js requires sourcemap-register.js)
+    package.json        # not ncc output; keeps the bundle CommonJS in `type: module` host repos
 src/
   index.ts              # entry point — orchestration
   args.ts               # argv parsing
@@ -35,10 +34,9 @@ tests/
   bundle.test.ts
   cli.test.ts
   format.test.ts
-scripts/
-  write-dist-package.mjs  # generates dist/package.json after ncc
+.github/                # CI workflow, Dependabot, SECURITY.md, issue/PR templates
 biome.json              # formatter + linter config
-lefthook.yml            # pre-commit jobs (biome, typecheck, test, file-length)
+lefthook.yml            # pre-commit hooks
 package.json            # private; build / typecheck / test scripts
 tasks/
   <version>/            # one folder per release (README, plus per-task files for multi-task releases)
@@ -63,13 +61,13 @@ npm run lint            # biome check (read-only)
 ## Conventions
 
 - **Exact-pinned deps** in `package.json` (no `^`, no `latest`), so bundles are reproducible.
-- **File length**: `src/**/*.ts` stays ≤ 300 lines. Enforced by the lefthook `file-length` job.
+- **File length**: `src/**/*.ts` stays ≤ 300 lines (lefthook and CI).
 - **No comments** explaining _what_ the code does. Only _why_.
-- **Vendored code is exempt** from this repo's biome config (see `biome.json`'s ignore list). Do not run `npm run format` against `src/scoring/` or `src/constants/`.
+- **Vendored code is exempt** from Biome (`biome.json` excludes `src/scoring/` and `src/constants/`): upstream owns its style, so don't reformat it from an editor either.
 
 ## Why `skills/agent-friendly/SKILL.md` and not root SKILL.md?
 
-The `vercel-labs/skills` CLI installs the **directory containing SKILL.md**. If SKILL.md lived at repo root, every sibling file (package.json, src/, tests/, node_modules/, …) would be copied into the user's agent skill directory on `npx skills add`. By scoping the SKILL.md to a subdirectory, only the things consumers actually need (SKILL.md + the bundled scorer in `dist/`) ship.
+The `vercel-labs/skills` CLI copies the whole directory holding SKILL.md. At the root that would ship `package.json`, `src/` and `node_modules/`; here it ships only SKILL.md and `dist/`.
 
 ## Versioning
 
@@ -77,7 +75,7 @@ Semver tags plus a floating major tag. A precise tag (`v0.1.6`) never moves; the
 
 Every release tag gets a dated `CHANGELOG.md` section (bullets moved out of `## [Unreleased]`); [CONTRIBUTING.md](./CONTRIBUTING.md#release-flow) has the steps.
 
-`#<ref>` support lives in [`source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) and is undocumented in their README (checked against `skills@1.7.2`) — re-check on a CLI upgrade.
+`#<ref>` support lives in [`source-parser.ts`](https://github.com/vercel-labs/skills/blob/main/src/source-parser.ts) (`parseFragmentRef`) and [`git.ts`](https://github.com/vercel-labs/skills/blob/main/src/git.ts) and is undocumented in their README (checked against `skills@1.9.0`) — re-check on a CLI upgrade.
 
 ## Self-containment rule
 
@@ -96,10 +94,10 @@ Upstream's [`AGENTS.md` → Sibling repos](https://github.com/hsnice16/agent-fri
 
 When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.
 
-Upstream's `tasks/1.0.0/03-benchmark-harness.md` plans a standalone scorer package, which would replace vendoring.
+If upstream publishes the scorer as a package, depend on it and delete the vendored copy.
 
 ## Security
 
-The skill reads files under the resolved repo root and nothing else: no writes, no network, no credentials, no code from the scored repo is run. The scorer treats the tree as untrusted — symlinks that leave the root are not followed, only regular files are read, and each read stops at 1 MiB.
+The skill reads files under the resolved repo root and nothing else: no writes, no network, no credentials, no code from the scored repo is run. The scorer treats the tree as untrusted — symlinks that leave the root are not followed, walks never descend into a linked folder, only regular files are read, and each read stops at 1 MiB.
 
-Report a vulnerability — e.g. a way to execute code from the scored repo or read outside its root — to <hsnice16@gmail.com>, not a public issue.
+Report a vulnerability — e.g. a way to execute code from the scored repo or read outside its root — as [`.github/SECURITY.md`](./.github/SECURITY.md) says, not in a public issue.
