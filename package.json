@@ -12,7 +12,7 @@
     "ignore": "7.0.5"
   },
   "scripts": {
-    "build": "ncc build src/index.ts -o skills/agent-friendly/dist --source-map --license licenses.txt",
+    "build": "ncc build src/index.ts -o skills/agent-friendly/dist --source-map --license licenses.txt && node scripts/write-dist-package.mjs",
     "format": "biome check --write",
     "lint": "biome check",
     "prepare-hooks": "lefthook install",

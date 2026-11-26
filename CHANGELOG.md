@@ -8,6 +8,10 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+### Fixed
+
+- The bundled scorer runs when the skill is installed in a repo whose `package.json` sets `"type": "module"`. The bundle stays CommonJS instead of inheriting the host repo's module type, so `node <skill-dir>/dist/index.js` no longer fails with `require is not defined in ES module scope`.
+
 ## [0.1.11] - 2026-11-25
 
 ### Security
