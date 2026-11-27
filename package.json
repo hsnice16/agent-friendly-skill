@@ -9,7 +9,7 @@
     "node": ">=20.9.0"
   },
   "dependencies": {
-    "ignore": "7.0.5"
+    "ignore": "7.0.16"
   },
   "scripts": {
     "build": "ncc build src/index.ts -o skills/agent-friendly/dist --source-map --license licenses.txt",
